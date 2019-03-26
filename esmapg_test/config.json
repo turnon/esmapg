@@ -5,7 +5,7 @@
             "line_items": {
                 "only": ["barcode"],
                 "has_one": {
-                    "good": {
+                    "goods": {
                         "only": ["code"]
                     }
                 },
@@ -13,7 +13,7 @@
                     "discounts": {
                         "only": ["amount"],
                         "has_one": {
-                            "promotion": {
+                            "promotions": {
                                 "only": ["code"]
                             }
                         }
@@ -23,18 +23,21 @@
 
         },
         "has_one": {
-            "store": {
-                "only": ["name"]
+            "contract": {
+                "only": ["text"]
             }
         },
         "belongs_to": {
-            "member": {
+            "members": {
                 "only": ["name", "mobile"],
                 "has_many": {
                     "addresses": {
                         "only": ["path"]
                     }
                 }
+            },
+            "stores": {
+                "only": ["name"]
             }
         }
     }
