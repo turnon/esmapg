@@ -1,0 +1,41 @@
+{
+    "orders": {
+        "only": ["order_no", "created_at"],
+        "has_many": {
+            "line_items": {
+                "only": ["barcode"],
+                "has_one": {
+                    "good": {
+                        "only": ["code"]
+                    }
+                },
+                "has_many": {
+                    "discounts": {
+                        "only": ["amount"],
+                        "has_one": {
+                            "promotion": {
+                                "only": ["code"]
+                            }
+                        }
+                    }
+                }
+            }
+
+        },
+        "has_one": {
+            "store": {
+                "only": ["name"]
+            }
+        },
+        "belongs_to": {
+            "member": {
+                "only": ["name", "mobile"],
+                "has_many": {
+                    "addresses": {
+                        "only": ["path"]
+                    }
+                }
+            }
+        }
+    }
+}
