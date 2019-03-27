@@ -35,44 +35,49 @@ func (fs *fields) onlySQL() string {
 }
 
 func (fs *fields) belongsToSQL(parentTable string) string {
-	var sqls []string
-	for childName, subFields := range fs.BelongsTo {
+	return collectSQL(fs.BelongsTo, func(childName string, subFields fields) string {
 		childName = inflection.Singular(childName)
 		childTable := inflection.Plural(childName)
 		joining := parentTable + "." + childName + "_id = " + childTable + ".id"
-		sql := "( SELECT row_to_json(t) FROM ( SELECT " +
+
+		return "( SELECT row_to_json(t) FROM ( SELECT " +
 			subFields.sql(childTable) + " FROM " + childTable + " WHERE " + joining +
 			") t ) AS " + childName
-		sqls = append(sqls, sql)
-	}
-	return strings.Join(sqls, ", ")
+	})
 }
 
 func (fs *fields) hasOneSQL(parentTable string) string {
-	var sqls []string
-	for childName, subFields := range fs.HasOne {
-		parentdName := inflection.Singular(parentTable)
+	parentdName := inflection.Singular(parentTable)
+
+	return collectSQL(fs.HasOne, func(childName string, subFields fields) string {
 		childName = inflection.Singular(childName)
 		childTable := inflection.Plural(childName)
 		joining := parentTable + ".id = " + childTable + "." + parentdName + "_id"
-		sql := "( SELECT row_to_json(t) FROM ( SELECT " +
+
+		return "( SELECT row_to_json(t) FROM ( SELECT " +
 			subFields.sql(childTable) + " FROM " + childTable + " WHERE " + joining +
 			") t ) AS " + childName
-		sqls = append(sqls, sql)
-	}
-	return strings.Join(sqls, ", ")
+	})
 }
 
 func (fs *fields) hasManySQL(parentTable string) string {
-	var sqls []string
-	for childName, subFields := range fs.HasMany {
-		parentdName := inflection.Singular(parentTable)
+	parentdName := inflection.Singular(parentTable)
+
+	return collectSQL(fs.HasMany, func(childName string, subFields fields) string {
 		childName = inflection.Plural(childName)
 		childTable := inflection.Plural(childName)
 		joining := parentTable + ".id = " + childTable + "." + parentdName + "_id"
-		sql := "( SELECT json_agg(t) FROM ( SELECT " +
+
+		return "( SELECT json_agg(t) FROM ( SELECT " +
 			subFields.sql(childTable) + " FROM " + childTable + " WHERE " + joining +
 			") t ) AS " + childName
+	})
+}
+
+func collectSQL(relations map[string]fields, f func(childName string, subFields fields) string) string {
+	var sqls []string
+	for childName, subFields := range relations {
+		sql := f(childName, subFields)
 		sqls = append(sqls, sql)
 	}
 	return strings.Join(sqls, ", ")
