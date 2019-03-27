@@ -35,9 +35,8 @@ func (fs *fields) onlySQL() string {
 }
 
 func (fs *fields) belongsToSQL(parentTable string) string {
-	return collectSQL(fs.BelongsTo, func(childName string, subFields fields) string {
+	return collectSQL(fs.BelongsTo, func(childName string, childTable string, subFields fields) string {
 		childName = inflection.Singular(childName)
-		childTable := inflection.Plural(childName)
 		joining := parentTable + "." + childName + "_id = " + childTable + ".id"
 
 		return "( SELECT row_to_json(t) FROM ( SELECT " +
@@ -49,9 +48,8 @@ func (fs *fields) belongsToSQL(parentTable string) string {
 func (fs *fields) hasOneSQL(parentTable string) string {
 	parentdName := inflection.Singular(parentTable)
 
-	return collectSQL(fs.HasOne, func(childName string, subFields fields) string {
+	return collectSQL(fs.HasOne, func(childName string, childTable string, subFields fields) string {
 		childName = inflection.Singular(childName)
-		childTable := inflection.Plural(childName)
 		joining := parentTable + ".id = " + childTable + "." + parentdName + "_id"
 
 		return "( SELECT row_to_json(t) FROM ( SELECT " +
@@ -63,9 +61,8 @@ func (fs *fields) hasOneSQL(parentTable string) string {
 func (fs *fields) hasManySQL(parentTable string) string {
 	parentdName := inflection.Singular(parentTable)
 
-	return collectSQL(fs.HasMany, func(childName string, subFields fields) string {
+	return collectSQL(fs.HasMany, func(childName string, childTable string, subFields fields) string {
 		childName = inflection.Plural(childName)
-		childTable := inflection.Plural(childName)
 		joining := parentTable + ".id = " + childTable + "." + parentdName + "_id"
 
 		return "( SELECT json_agg(t) FROM ( SELECT " +
@@ -74,10 +71,11 @@ func (fs *fields) hasManySQL(parentTable string) string {
 	})
 }
 
-func collectSQL(relations map[string]fields, f func(childName string, subFields fields) string) string {
+func collectSQL(relations map[string]fields, f func(childName string, childTable string, subFields fields) string) string {
 	var sqls []string
 	for childName, subFields := range relations {
-		sql := f(childName, subFields)
+		childTable := inflection.Plural(childName)
+		sql := f(childName, childTable, subFields)
 		sqls = append(sqls, sql)
 	}
 	return strings.Join(sqls, ", ")
