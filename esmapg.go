@@ -3,6 +3,8 @@ package esmapg
 import (
 	"encoding/json"
 	"strings"
+
+	"github.com/jinzhu/inflection"
 )
 
 type Map struct {
@@ -18,11 +20,12 @@ type fields struct {
 }
 
 func (m *Map) Sql() string {
-	return "SELECT " + m.Fields.sql(m.Name) + " FROM " + m.Name
+	parentTable := inflection.Plural(m.Name)
+	return "SELECT " + m.Fields.sql(parentTable) + " FROM " + parentTable
 }
 
-func (fs *fields) sql(parentName string) string {
-	allSql := []string{fs.onlySql(), fs.belongsToSql(parentName)}
+func (fs *fields) sql(parentTable string) string {
+	allSql := []string{fs.onlySql(), fs.belongsToSql(parentTable)}
 
 	var sqls []string
 	for _, sql := range allSql {
@@ -38,13 +41,15 @@ func (fs *fields) onlySql() string {
 	return strings.Join(fs.Only, ", ")
 }
 
-func (fs *fields) belongsToSql(parentName string) string {
+func (fs *fields) belongsToSql(parentTable string) string {
 	var sqls []string
-	for name, subFields := range fs.BelongsTo {
-		joining := parentName + "." + name + "_id = " + name + ".id"
+	for childName, subFields := range fs.BelongsTo {
+		childName = inflection.Singular(childName)
+		childTable := inflection.Plural(childName)
+		joining := parentTable + "." + childName + "_id = " + childTable + ".id"
 		sql := "( SELECT row_to_json(t) FROM ( SELECT " +
-			subFields.sql(name) + " FROM " + name + " WHERE " + joining +
-			") t ) AS " + name
+			subFields.sql(childTable) + " FROM " + childTable + " WHERE " + joining +
+			") t ) AS " + childName
 		sqls = append(sqls, sql)
 	}
 	return strings.Join(sqls, ", ")

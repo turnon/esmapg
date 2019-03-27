@@ -4,16 +4,16 @@
         "has_many": {
             "line_items": {
                 "only": ["barcode"],
-                "has_one": {
-                    "goods": {
+                "belongs_to": {
+                    "good": {
                         "only": ["code"]
                     }
                 },
                 "has_many": {
                     "discounts": {
                         "only": ["amount"],
-                        "has_one": {
-                            "promotions": {
+                        "belongs_to": {
+                            "promotion": {
                                 "only": ["code"]
                             }
                         }
@@ -28,7 +28,7 @@
             }
         },
         "belongs_to": {
-            "members": {
+            "member": {
                 "only": ["name", "mobile"],
                 "has_many": {
                     "addresses": {
@@ -36,7 +36,7 @@
                     }
                 }
             },
-            "stores": {
+            "store": {
                 "only": ["name"]
             }
         }
