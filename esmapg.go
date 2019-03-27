@@ -27,7 +27,7 @@ func (m *Map) SQL() string {
 }
 
 func (fs *fields) sql(parentTable string) string {
-	allSQL := []string{fs.onlySQL(), fs.belongsToSQL(parentTable)}
+	allSQL := []string{fs.onlySQL(), fs.belongsToSQL(parentTable), fs.hasOneSQL(parentTable)}
 
 	var sqls []string
 	for _, sql := range allSQL {
@@ -49,6 +49,20 @@ func (fs *fields) belongsToSQL(parentTable string) string {
 		childName = inflection.Singular(childName)
 		childTable := inflection.Plural(childName)
 		joining := parentTable + "." + childName + "_id = " + childTable + ".id"
+		sql := "( SELECT row_to_json(t) FROM ( SELECT " +
+			subFields.sql(childTable) + " FROM " + childTable + " WHERE " + joining +
+			") t ) AS " + childName
+		sqls = append(sqls, sql)
+	}
+	return strings.Join(sqls, ", ")
+}
+
+func (fs *fields) hasOneSQL(parentTable string) string {
+	var sqls []string
+	for childName, subFields := range fs.HasOne {
+		parentdName := inflection.Singular(parentTable)
+		childTable := inflection.Plural(childName)
+		joining := parentTable + ".id = " + childTable + "." + parentdName + "_id"
 		sql := "( SELECT row_to_json(t) FROM ( SELECT " +
 			subFields.sql(childTable) + " FROM " + childTable + " WHERE " + joining +
 			") t ) AS " + childName
