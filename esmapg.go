@@ -7,6 +7,7 @@ import (
 	"github.com/jinzhu/inflection"
 )
 
+// Map is the root of mapping
 type Map struct {
 	Name   string
 	Fields fields
@@ -19,16 +20,17 @@ type fields struct {
 	BelongsTo map[string]fields `json:"belongs_to"`
 }
 
-func (m *Map) Sql() string {
+// SQL convert config json into sql
+func (m *Map) SQL() string {
 	parentTable := inflection.Plural(m.Name)
 	return "SELECT " + m.Fields.sql(parentTable) + " FROM " + parentTable
 }
 
 func (fs *fields) sql(parentTable string) string {
-	allSql := []string{fs.onlySql(), fs.belongsToSql(parentTable)}
+	allSQL := []string{fs.onlySQL(), fs.belongsToSQL(parentTable)}
 
 	var sqls []string
-	for _, sql := range allSql {
+	for _, sql := range allSQL {
 		if sql != "" {
 			sqls = append(sqls, sql)
 		}
@@ -37,11 +39,11 @@ func (fs *fields) sql(parentTable string) string {
 	return strings.Join(sqls, ", ")
 }
 
-func (fs *fields) onlySql() string {
+func (fs *fields) onlySQL() string {
 	return strings.Join(fs.Only, ", ")
 }
 
-func (fs *fields) belongsToSql(parentTable string) string {
+func (fs *fields) belongsToSQL(parentTable string) string {
 	var sqls []string
 	for childName, subFields := range fs.BelongsTo {
 		childName = inflection.Singular(childName)
@@ -55,6 +57,7 @@ func (fs *fields) belongsToSql(parentTable string) string {
 	return strings.Join(sqls, ", ")
 }
 
+// Parse read config json
 func Parse(config []byte) []Map {
 	var hash map[string]fields
 	json.Unmarshal(config, &hash)

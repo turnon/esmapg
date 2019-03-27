@@ -18,6 +18,6 @@ func TestNew(t *testing.T) {
 	// fmt.Println(maps)
 
 	for _, m := range maps {
-		fmt.Println(m.Sql())
+		fmt.Println(m.SQL())
 	}
 }
