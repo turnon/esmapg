@@ -51,3 +51,13 @@ func TestMappings(t *testing.T) {
 		}
 	}
 }
+
+func TestPath(t *testing.T) {
+	for _, m := range maps {
+		m.Paths()
+		// t.Log(mappings)
+		// if rmSpaces(mappings) != mappingsData() {
+		// 	t.Error("wrong mappings")
+		// }
+	}
+}
