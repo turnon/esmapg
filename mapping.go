@@ -17,12 +17,21 @@ type property struct {
 
 type properties map[string]property
 
-// Mapping convert config json into es mapping
-func (m *Map) Mapping() string {
-	js, err := json.Marshal(m.Fields.mapping())
+// Mappings convert config json into es mapping
+func (m *Map) Mappings() string {
+	mappings := map[string]map[string]map[string]properties{
+		"mappings": map[string]map[string]properties{
+			"_doc": map[string]properties{
+				"properties": m.Fields.mapping(),
+			},
+		},
+	}
+
+	js, err := json.Marshal(mappings)
 	if err != nil {
 		panic(err)
 	}
+
 	return string(js)
 }
 

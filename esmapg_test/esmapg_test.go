@@ -23,21 +23,31 @@ func sqlData() string {
 	return rmSpaces(string(sql))
 }
 
+func mappingsData() string {
+	mappings, _ := ioutil.ReadFile("./mappings.json")
+	return rmSpaces(string(mappings))
+}
+
 func rmSpaces(str string) string {
 	return reRmSpaces.ReplaceAllString(str, ``)
 }
 
 func TestSQL(t *testing.T) {
 	for _, m := range maps {
-		t.Log(m.SQL())
-		if rmSpaces(m.SQL()) != sqlData() {
+		sql := m.SQL()
+		t.Log(sql)
+		if rmSpaces(sql) != sqlData() {
 			t.Error("wrong sql")
 		}
 	}
 }
 
-func TestMapping(t *testing.T) {
+func TestMappings(t *testing.T) {
 	for _, m := range maps {
-		t.Log(m.Mapping())
+		mappings := m.Mappings()
+		t.Log(mappings)
+		if rmSpaces(mappings) != mappingsData() {
+			t.Error("wrong mappings")
+		}
 	}
 }
