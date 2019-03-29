@@ -1,0 +1,43 @@
+{
+    "mappings": {
+        "_doc": {
+            "properties": {
+                "contract": {
+                    "type": "object",
+                    "properties": {}
+                },
+                "line_items": {
+                    "type": "nested",
+                    "properties": {
+                        "discounts": {
+                            "type": "nested",
+                            "properties": {
+                                "promotion": {
+                                    "type": "object",
+                                    "properties": {}
+                                }
+                            }
+                        },
+                        "good": {
+                            "type": "object",
+                            "properties": {}
+                        }
+                    }
+                },
+                "member": {
+                    "type": "object",
+                    "properties": {
+                        "addresses": {
+                            "type": "nested",
+                            "properties": {}
+                        }
+                    }
+                },
+                "store": {
+                    "type": "object",
+                    "properties": {}
+                }
+            }
+        }
+    }
+}

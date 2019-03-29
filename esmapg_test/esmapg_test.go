@@ -8,7 +8,10 @@ import (
 	"github.com/turnon/esmapg"
 )
 
-var reRmSpaces = regexp.MustCompile(`\s|\n`)
+var (
+	reRmSpaces = regexp.MustCompile(`\s|\n`)
+	maps       = esmapg.Parse(jsonData())
+)
 
 func jsonData() []byte {
 	json, _ := ioutil.ReadFile("./config.json")
@@ -20,17 +23,31 @@ func sqlData() string {
 	return rmSpaces(string(sql))
 }
 
+func mappingsData() string {
+	mappings, _ := ioutil.ReadFile("./mappings.json")
+	return rmSpaces(string(mappings))
+}
+
 func rmSpaces(str string) string {
 	return reRmSpaces.ReplaceAllString(str, ``)
 }
 
-func TestNew(t *testing.T) {
-	maps := esmapg.Parse(jsonData())
-
+func TestSQL(t *testing.T) {
 	for _, m := range maps {
-		t.Log(m.SQL())
-		if rmSpaces(m.SQL()) != sqlData() {
+		sql := m.SQL()
+		t.Log(sql)
+		if rmSpaces(sql) != sqlData() {
 			t.Error("wrong sql")
+		}
+	}
+}
+
+func TestMappings(t *testing.T) {
+	for _, m := range maps {
+		mappings := m.Mappings()
+		t.Log(mappings)
+		if rmSpaces(mappings) != mappingsData() {
+			t.Error("wrong mappings")
 		}
 	}
 }
