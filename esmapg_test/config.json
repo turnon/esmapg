@@ -28,6 +28,9 @@
             }
         },
         "belongs_to": {
+            "store": {
+                "only": ["name"]
+            },
             "member": {
                 "only": ["name", "mobile"],
                 "has_many": {
@@ -35,9 +38,6 @@
                         "only": ["path"]
                     }
                 }
-            },
-            "store": {
-                "only": ["name"]
             }
         }
     }

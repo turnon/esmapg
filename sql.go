@@ -1,6 +1,7 @@
 package esmapg
 
 import (
+	"sort"
 	"strings"
 
 	"github.com/jinzhu/inflection"
@@ -41,6 +42,7 @@ func (fs *fields) onlySQL() string {
 		uniqFields = append(uniqFields, field)
 	}
 
+	sort.Strings(uniqFields)
 	return strings.Join(uniqFields, ", ")
 }
 
@@ -82,11 +84,19 @@ func (fs *fields) hasManySQL(parentTable string) string {
 }
 
 func collectSQL(relations map[string]fields, f func(childName string, childTable string, subFields fields) string) string {
-	var sqls []string
-	for childName, subFields := range relations {
+	children := []string{}
+	for child := range relations {
+		children = append(children, child)
+	}
+	sort.Strings(children)
+
+	sqls := []string{}
+	for _, childName := range children {
+		subFields := relations[childName]
 		childTable := inflection.Plural(childName)
 		sql := f(childName, childTable, subFields)
 		sqls = append(sqls, sql)
 	}
+
 	return strings.Join(sqls, ", ")
 }

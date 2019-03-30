@@ -1,8 +1,8 @@
-SELECT id, order_no, created_at
+SELECT created_at, id, order_no
 	, (
 		SELECT row_to_json(t)
 		FROM (
-			SELECT id, name, mobile
+			SELECT id, mobile, name
 				, (
 					SELECT json_agg(t)
 					FROM (
@@ -18,7 +18,7 @@ SELECT id, order_no, created_at
 	, (
 		SELECT row_to_json(t)
 		FROM (
-			SELECT name, id
+			SELECT id, name
 			FROM stores
 			WHERE orders.store_id = stores.id
 		) t
@@ -38,7 +38,7 @@ SELECT id, order_no, created_at
 				, (
 					SELECT row_to_json(t)
 					FROM (
-						SELECT id, code
+						SELECT code, id
 						FROM goods
 						WHERE line_items.good_id = goods.id
 					) t
@@ -46,11 +46,11 @@ SELECT id, order_no, created_at
 				, (
 					SELECT json_agg(t)
 					FROM (
-						SELECT id, amount
+						SELECT amount, id
 							, (
 								SELECT row_to_json(t)
 								FROM (
-									SELECT id, code
+									SELECT code, id
 									FROM promotions
 									WHERE discounts.promotion_id = promotions.id
 								) t
