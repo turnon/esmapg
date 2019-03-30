@@ -31,7 +31,17 @@ func (fs *fields) sql(parentTable string) string {
 }
 
 func (fs *fields) onlySQL() string {
-	return strings.Join(fs.Only, ", ")
+	fieldsSet := map[string]bool{"id": true}
+	for _, field := range fs.Only {
+		fieldsSet[field] = true
+	}
+
+	uniqFields := []string{}
+	for field := range fieldsSet {
+		uniqFields = append(uniqFields, field)
+	}
+
+	return strings.Join(uniqFields, ", ")
 }
 
 func (fs *fields) belongsToSQL(parentTable string) string {
